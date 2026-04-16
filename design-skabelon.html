@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design af online læringsaktiviteter — Designskabelon</title>
+<style>
+  :root {
+    --bg: #F7F4EF;
+    --surface: #FFFFFF;
+    --border: #E2DDD6;
+    --border-dark: #C8C2B8;
+    --text: #1A1714;
+    --text-muted: #6B6560;
+    --text-faint: #9E9890;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1A1814;
+      --surface: #232018;
+      --border: #38342E;
+      --border-dark: #4A4540;
+      --text: #F0EDE8;
+      --text-muted: #A09890;
+      --text-faint: #6A6460;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    flex-wrap: wrap;
+  }
+
+  .header-left h1 {
+    font-size: 15px;
+    font-weight: normal;
+    letter-spacing: 0.01em;
+    color: var(--text);
+  }
+  .header-left p {
+    font-size: 12px;
+    color: var(--text-faint);
+    font-family: 'Helvetica Neue', sans-serif;
+    margin-top: 2px;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 7px 14px;
+    font-size: 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-dark);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    transition: all 0.15s;
+    letter-spacing: 0.02em;
+  }
+  .btn:hover { background: var(--bg); color: var(--text); border-color: var(--text-faint); }
+  .btn.primary {
+    background: var(--text);
+    color: var(--bg);
+    border-color: var(--text);
+  }
+  .btn.primary:hover { opacity: 0.85; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    min-height: calc(100vh - 60px);
+  }
+
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 1.5rem 0;
+    position: sticky;
+    top: 60px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+  }
+
+  .sidebar-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    font-family: 'Helvetica Neue', sans-serif;
+    padding: 0 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .phase-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 1.25rem;
+    width: 100%;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 13px;
+    text-align: left;
+    transition: all 0.12s;
+    border-right: 2px solid transparent;
+  }
+  .phase-btn:hover { background: var(--bg); color: var(--text); }
+  .phase-btn.active {
+    color: var(--text);
+    font-weight: 500;
+    background: var(--bg);
+  }
+
+  .phase-pip {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 2px solid currentColor;
+    opacity: 0.4;
+    transition: all 0.15s;
+  }
+  .phase-btn.active .phase-pip,
+  .phase-pip.done { opacity: 1; }
+  .phase-pip.partial { opacity: 0.7; }
+
+  .progress-sidebar {
+    padding: 1rem 1.25rem 0;
+    margin-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+  .progress-label {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    font-family: 'Helvetica Neue', sans-serif;
+    margin-bottom: 6px;
+  }
+  .progress-track {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--text-muted);
+    transition: width 0.3s;
+  }
+  .progress-count {
+    font-size: 11px;
+    color: var(--text-faint);
+    font-family: 'Helvetica Neue', sans-serif;
+    margin-top: 4px;
+  }
+
+  .main {
+    padding: 2rem 2.5rem;
+    max-width: 720px;
+  }
+
+  .phase-panel { display: none; }
+  .phase-panel.active { display: block; }
+
+  .phase-hero {
+    border-left: 3px solid;
+    padding: 1rem 1.25rem;
+    margin-bottom: 2rem;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  }
+  .phase-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-family: 'Helvetica Neue', sans-serif;
+    opacity: 0.7;
+    margin-bottom: 4px;
+  }
+  .phase-title {
+    font-size: 24px;
+    font-weight: normal;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+  .phase-desc {
+    font-size: 13px;
+    font-family: 'Helvetica Neue', sans-serif;
+    opacity: 0.7;
+    line-height: 1.5;
+  }
+
+  .question-group {
+    margin-bottom: 1.75rem;
+  }
+  .q-label {
+    font-size: 13px;
+    font-weight: normal;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    color: var(--text);
+    margin-bottom: 4px;
+    letter-spacing: 0.01em;
+  }
+  .q-hint {
+    font-size: 12px;
+    color: var(--text-faint);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    margin-bottom: 8px;
+    line-height: 1.5;
+    font-style: italic;
+  }
+  textarea {
+    width: 100%;
+    min-height: 88px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: 'Georgia', serif;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    resize: vertical;
+    transition: border-color 0.15s;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--border-dark);
+  }
+
+  .autosave-note {
+    font-size: 11px;
+    color: var(--text-faint);
+    font-family: 'Helvetica Neue', sans-serif;
+    text-align: right;
+    margin-bottom: 1rem;
+    height: 16px;
+    transition: opacity 0.5s;
+  }
+
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2rem 0;
+  }
+
+  .feedback-section {}
+  .feedback-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+  .feedback-head h3 {
+    font-size: 13px;
+    font-weight: normal;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--border-dark);
+    border-top-color: var(--text-muted);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .feedback-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1.25rem;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    display: none;
+  }
+  .feedback-box.show { display: block; }
+
+  .iter-note {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-faint);
+    font-family: 'Helvetica Neue', sans-serif;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    max-width: 480px;
+    width: 100%;
+  }
+  .modal h2 {
+    font-size: 17px;
+    font-weight: normal;
+    margin-bottom: 0.75rem;
+  }
+  .modal p {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-family: 'Helvetica Neue', sans-serif;
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .export-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+  .export-option {
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.12s;
+    background: var(--bg);
+  }
+  .export-option:hover { border-color: var(--border-dark); }
+  .export-option h4 {
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Helvetica Neue', sans-serif;
+    margin-bottom: 3px;
+  }
+  .export-option p {
+    font-size: 11px;
+    margin: 0;
+    color: var(--text-faint);
+    font-family: 'Helvetica Neue', sans-serif;
+  }
+
+  @media (max-width: 640px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar {
+      position: static;
+      height: auto;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+    }
+    .sidebar-label, .progress-sidebar { display: none; }
+    .phase-btn {
+      padding: 7px 12px;
+      border-right: none;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+    }
+    .phase-btn.active { border-bottom-color: currentColor; }
+    .main { padding: 1.25rem 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>Designskabelon — Online læringsaktiviteter</h1>
+    <p>Dalsgaard, Thestrup & Boie (2024) · Data gemmes automatisk i din browser</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn" onclick="showImport()">Indlæs gem-fil</button>
+    <button class="btn" onclick="showExport()">Eksportér</button>
+    <button class="btn" onclick="showReset()">Nulstil</button>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <p class="sidebar-label">Faser</p>
+    <div id="phaseNav"></div>
+    <div class="progress-sidebar">
+      <p class="progress-label">Samlet fremskridt</p>
+      <div class="progress-track">
+        <div class="progress-fill" id="globalProgress" style="width:0%"></div>
+      </div>
+      <p class="progress-count" id="globalCount">0 af 18 felter udfyldt</p>
+    </div>
+  </nav>
+
+  <main class="main" id="mainContent">
+    <div class="autosave-note" id="autosaveNote"></div>
+  </main>
+</div>
+
+<!-- Export modal -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal">
+    <h2>Eksportér dine noter</h2>
+    <div class="export-options">
+      <div class="export-option" onclick="exportJSON()">
+        <h4>Gem som fil (.json)</h4>
+        <p>Gem dine noter og indlæs dem igen senere — også på en anden enhed</p>
+      </div>
+      <div class="export-option" onclick="exportPrint()">
+        <h4>Udskriv / gem som PDF</h4>
+        <p>Udskriv alle udfyldte noter som et samlet dokument</p>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('exportModal')">Luk</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import modal -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <h2>Indlæs gem-fil</h2>
+    <p>Vælg den .json-fil du tidligere har gemt fra dette værktøj. Dine nuværende noter vil blive erstattet.</p>
+    <input type="file" id="importFile" accept=".json" style="font-size:13px;margin-bottom:1rem;color:var(--text-muted);font-family:'Helvetica Neue',sans-serif;">
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('importModal')">Annuller</button>
+      <button class="btn primary" onclick="doImport()">Indlæs</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reset modal -->
+<div class="modal-overlay" id="resetModal">
+  <div class="modal">
+    <h2>Nulstil alle noter</h2>
+    <p>Dette sletter alle dine noter permanent. Det kan ikke fortrydes. Eksportér først, hvis du vil gemme dine nuværende noter.</p>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('resetModal')">Annuller</button>
+      <button class="btn primary" onclick="doReset()" style="background:#c0392b;border-color:#c0392b;">Slet alt</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PHASES = [
+  {
+    id:'ideudvikle', label:'Idéudvikle', num:1,
+    color:'#B8860B', bgLight:'#FDF8E8',
+    desc:'Formål, visioner og undersøgelsesspørgsmål',
+    questions:[
+      {key:'brainstorm', label:'Brainstorm', hint:'Hvad skal designes, hvorfor – og hvad og/eller hvem skal det gavne? Skriv stikord der giver svar på spørgsmålet.'},
+      {key:'formal', label:'Formål', hint:'Hvad er formålet med at redesigne eller udvikle undervisningen/uddannelsen? Formuler et foreløbigt formål.'},
+      {key:'ideer', label:'Idéer og vision', hint:'Hvilke umiddelbare idéer er der til designet? Formuler én eller flere idéer og en vision for anvendelse af online aktiviteter.'},
+      {key:'spoergsmaal', label:'Undersøgelsesspørgsmål', hint:'Hvad er det centrale undersøgelsesspørgsmål? Dette spørgsmål skal fastholde det undersøgende element gennem hele forløbet.'}
+    ],
+    aiContext:'Fase 1: Idéudvikle. Studerende skal formulere formål, idéer og et centralt undersøgelsesspørgsmål for deres designprojekt med online læringsaktiviteter. Hjælp dem med at skærpe formålet til noget konkret og handlingsorienteret, gøre idéerne specifikt knyttet til online og digitale aktiviteter – og formulere et undersøgelsesspørgsmål der reelt er undersøgende og ikke blot bekræftende.'
+  },
+  {
+    id:'undersoege', label:'Undersøge', num:2,
+    color:'#185FA5', bgLight:'#EBF3FA',
+    desc:'Modeller og pædagogiske principper',
+    questions:[
+      {key:'modeller', label:'Valg af modeller', hint:'Hvilke modeller skal undersøges? Hvilke(n) model(ler) inspirerer, og hvilke(n) tages der afsæt i til det videre forløb?'},
+      {key:'principper', label:'Pædagogiske principper', hint:'Hvilke pædagogiske og didaktiske valg skal tages og hvorfor? Beskriv de centrale pædagogiske principper/begreber/fokusområder for udviklingen af undervisningen.'},
+      {key:'kobling', label:'Kobling til formål', hint:'Hvordan forbinder valgene sig til formålet? Begrund dine valg af pædagogiske principper i relation til idéer og formål.'}
+    ],
+    aiContext:'Fase 2: Undersøge. Studerende skal forbinde teorier og modeller til deres konkrete designvalg for online læringsaktiviteter. Hjælp dem med at artikulere, hvorfor de valgte netop disse modeller – ikke bare hvad modellerne indeholder. Udfordre koblingen til formålet.'
+  },
+  {
+    id:'eksperimentere', label:'Eksperimentere', num:3,
+    color:'#0F6E56', bgLight:'#E6F5F0',
+    desc:'Digitale teknologier i praksis',
+    questions:[
+      {key:'teknologivalg', label:'Valg af teknologier', hint:'Hvilke digitale teknologier sættes i spil i eksperimenter? Udvælg specifikke teknologier/værktøjer, der skal eksperimenteres med.'},
+      {key:'karakteristika', label:'Teknologiernes karakteristika', hint:'Hvad er teknologiernes karakteristika, kvaliteter og potentialer?'},
+      {key:'erfaringer', label:'Erfaringer fra eksperimenter', hint:'Hvordan "opfører" teknologierne sig, og hvordan opleves det at anvende dem? Beskriv erfaringerne med eksperimenterne.'}
+    ],
+    aiContext:'Fase 3: Eksperimentere. Studerende eksperimenterer med konkrete digitale teknologier til læringsaktiviteter. Hjælp dem med at beskrive teknologiernes faktiske adfærd og potentiale frem for blot at navngive dem. Spørg til konkrete observationer og hvad der overraskede dem.'
+  },
+  {
+    id:'afproeve', label:'Afprøve', num:4,
+    color:'#2C4870', bgLight:'#EBF0F8',
+    desc:'Teknologier i afgrænsede forløb',
+    questions:[
+      {key:'forsoeg', label:'Forsøg i praksis', hint:'Hvad gør du/I, og hvordan skal teknologierne sættes i spil? Beskriv, hvordan forsøget skal udfolde sig.'},
+      {key:'overraskelser', label:'Overraskelser og potentialer', hint:'Hvad sker der, når teknologierne sættes i spil? Beskriv, hvad der faktisk skete, og om der var eventuelle overraskelser.'},
+      {key:'tegn', label:'Tegn på forandring', hint:'Hvilke tegn på realisering af formålet viser sig? Beskriv potentialerne i de afprøvede forløb for nye undervisnings- og læringsforløb.'}
+    ],
+    aiContext:'Fase 4: Afprøve. Studerende har gennemført et afprøvningsforløb med digitale teknologier. Hjælp dem med at reflektere kritisk over hvad der faktisk skete – ikke hvad de planlagde. Bed dem om at give konkrete eksempler og spørg til evidens for læring.'
+  },
+  {
+    id:'bygge', label:'Bygge', num:5,
+    color:'#8B3A0F', bgLight:'#F9EDE5',
+    desc:'Det endelige undervisningsforløb',
+    questions:[
+      {key:'tilrettelaeg', label:'Tilrettelæggelse', hint:'Hvordan er det færdige undervisningsforløb tilrettelagt og struktureret? Beskriv eller illustrér det konkrete forløb og hvordan det forløber i praksis.'},
+      {key:'nytaenkning', label:'Nytænkning og udvikling', hint:'Hvori består nytænkningen i det udviklede forløb? Er der tale om etablering af en ny praksis, eller er en eksisterende undervisningsform blevet udvidet – og hvordan?'},
+      {key:'refleksion', label:'Refleksion og erfaringer', hint:'Hvad er du/I blevet særligt opmærksom på i udviklingsprocessen? Notér tips til, hvordan en gentagelse kan gribes an.'}
+    ],
+    aiContext:'Fase 5: Bygge. Studerende skal beskrive det endelige design og tydeliggøre hvad der er nyt og anderledes ved forløbet. Hjælp dem med at skærpe nytænkningselementet og spørg til, hvad der er lært af hele udviklingsprocessen.'
+  },
+  {
+    id:'formidle', label:'Formidle', num:6,
+    color:'#7A1F42', bgLight:'#F9EAF1',
+    desc:'Præsentation til kollegaer',
+    questions:[
+      {key:'format', label:'Formidlingsform', hint:'Hvordan skal det endelige undervisningsforløb eller uddannelse præsenteres til kollegaer? Overvej og udvælg et relevant formidlingsformat.'},
+      {key:'resultat', label:'Det endelige resultat', hint:'Hvordan ser det endelige forløb eller den færdige uddannelse ud? Beskriv, illustrér eller præsentér det endelige resultat.'}
+    ],
+    aiContext:'Fase 6: Formidle. Studerende skal kommunikere deres designarbejde til kollegaer. Hjælp dem med at overveje matchet mellem formidlingsformat og indhold – og hvad der er det mest centrale at kommunikere til en kollega, der ikke kender projektet.'
+  }
+];
+
+const STORAGE_KEY = 'design_skabelon_v1';
+let state = {};
+let autosaveTimer = null;
+
+function initState() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try { state = JSON.parse(saved); } catch(e) { state = {}; }
+  }
+  PHASES.forEach(p => {
+    if (!state[p.id]) state[p.id] = {};
+    p.questions.forEach(q => {
+      if (!state[p.id][q.key]) state[p.id][q.key] = '';
+    });
+  });
+  if (!state._feedback) state._feedback = {};
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  const note = document.getElementById('autosaveNote');
+  note.textContent = 'Gemt automatisk · ' + new Date().toLocaleTimeString('da-DK', {hour:'2-digit',minute:'2-digit'});
+  note.style.opacity = '1';
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(() => { note.style.opacity = '0'; }, 3000);
+}
+
+function countFilled() {
+  let total = 0, filled = 0;
+  PHASES.forEach(p => {
+    p.questions.forEach(q => {
+      total++;
+      if ((state[p.id]?.[q.key] || '').trim().length > 5) filled++;
+    });
+  });
+  return { total, filled };
+}
+
+function phaseFillLevel(phaseId) {
+  const p = PHASES.find(x => x.id === phaseId);
+  const qs = p.questions;
+  const filled = qs.filter(q => (state[phaseId]?.[q.key] || '').trim().length > 5).length;
+  if (filled === qs.length) return 'done';
+  if (filled > 0) return 'partial';
+  return 'empty';
+}
+
+function updateProgress() {
+  const { total, filled } = countFilled();
+  const pct = Math.round((filled / total) * 100);
+  document.getElementById('globalProgress').style.width = pct + '%';
+  document.getElementById('globalCount').textContent = filled + ' af ' + total + ' felter udfyldt';
+
+  PHASES.forEach(p => {
+    const pip = document.getElementById('pip-' + p.id);
+    if (!pip) return;
+    const level = phaseFillLevel(p.id);
+    pip.className = 'phase-pip ' + level;
+    const btn = document.getElementById('phasebtn-' + p.id);
+    if (level === 'done') {
+      pip.style.background = p.color;
+      pip.style.borderColor = p.color;
+    } else if (level === 'partial') {
+      pip.style.background = 'transparent';
+      pip.style.borderColor = p.color;
+    } else {
+      pip.style.background = 'transparent';
+      pip.style.borderColor = '';
+    }
+  });
+}
+
+let activePhase = PHASES[0].id;
+
+function buildUI() {
+  const nav = document.getElementById('phaseNav');
+  const main = document.getElementById('mainContent');
+  const autosave = document.getElementById('autosaveNote');
+
+  PHASES.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'phase-btn' + (p.id === activePhase ? ' active' : '');
+    btn.id = 'phasebtn-' + p.id;
+    btn.style.borderRightColor = p.id === activePhase ? p.color : 'transparent';
+    btn.innerHTML = `<span class="phase-pip" id="pip-${p.id}" style="color:${p.color}"></span>${p.label}`;
+    btn.onclick = () => switchPhase(p.id);
+    nav.appendChild(btn);
+
+    const panel = document.createElement('div');
+    panel.className = 'phase-panel' + (p.id === activePhase ? ' active' : '');
+    panel.id = 'panel-' + p.id;
+
+    let qHTML = '';
+    p.questions.forEach(q => {
+      const val = (state[p.id]?.[q.key] || '').replace(/"/g, '&quot;');
+      qHTML += `
+        <div class="question-group">
+          <label class="q-label" for="${p.id}_${q.key}">${q.label}</label>
+          <p class="q-hint">${q.hint}</p>
+          <textarea id="${p.id}_${q.key}" placeholder="Skriv dine noter her..." oninput="handleInput('${p.id}','${q.key}',this.value)">${state[p.id]?.[q.key] || ''}</textarea>
+        </div>`;
+    });
+
+    const prevFb = state._feedback?.[p.id] || '';
+
+    panel.innerHTML = `
+      <div class="phase-hero" style="border-color:${p.color};background:${p.bgLight};">
+        <p class="phase-eyebrow" style="color:${p.color}">Fase ${p.num}</p>
+        <h2 class="phase-title" style="color:${p.color}">${p.label}</h2>
+        <p class="phase-desc">${p.desc}</p>
+      </div>
+      ${qHTML}
+      <hr class="section-divider">
+      <div class="feedback-section">
+        <div class="feedback-head">
+          <h3>AI-feedback</h3>
+          <div class="spinner" id="spin-${p.id}"></div>
+        </div>
+        <button class="btn" id="aibtn-${p.id}" onclick="getFeedback('${p.id}')" style="margin-bottom:1rem">Få feedback på denne fase →</button>
+        <div class="feedback-box ${prevFb ? 'show' : ''}" id="fb-${p.id}">${prevFb}</div>
+      </div>
+      <p class="iter-note">Faserne behøver ikke følges i rækkefølge — genbesøg og revider løbende.</p>
+    `;
+
+    main.insertBefore(panel, main.lastElementChild.nextSibling);
+  });
+
+  main.appendChild(autosave);
+  updateProgress();
+}
+
+function switchPhase(id) {
+  document.querySelectorAll('.phase-panel').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.phase-btn').forEach(el => {
+    el.classList.remove('active');
+    el.style.borderRightColor = 'transparent';
+  });
+  document.getElementById('panel-' + id).classList.add('active');
+  const btn = document.getElementById('phasebtn-' + id);
+  btn.classList.add('active');
+  const p = PHASES.find(x => x.id === id);
+  btn.style.borderRightColor = p.color;
+  activePhase = id;
+  window.scrollTo(0, 0);
+}
+
+function handleInput(phaseId, key, val) {
+  state[phaseId][key] = val;
+  updateProgress();
+  saveState();
+}
+
+async function getFeedback(phaseId) {
+  const p = PHASES.find(x => x.id === phaseId);
+  const btn = document.getElementById('aibtn-' + phaseId);
+  const spin = document.getElementById('spin-' + phaseId);
+  const fb = document.getElementById('fb-' + phaseId);
+
+  const notes = p.questions.map(q => {
+    const val = (state[phaseId]?.[q.key] || '').trim();
+    return val ? `${q.label}: ${val}` : null;
+  }).filter(Boolean).join('\n\n');
+
+  if (!notes) {
+    fb.textContent = 'Skriv dine tanker i felterne ovenfor, så kan jeg give feedback på dem.';
+    fb.classList.add('show');
+    return;
+  }
+
+  btn.disabled = true;
+  spin.style.display = 'block';
+
+  const sys = `Du er en pædagogisk sparringspartner for studerende, der arbejder med at designe digitale læringsaktiviteter ud fra guiden "Design af online læringsaktiviteter" (Dalsgaard, Thestrup & Boie, 2024).
+
+${p.aiContext}
+
+Regler:
+- Stil 2-3 konkrete, sokratiske spørgsmål der udfordrer og uddyber den studerendes tænkning
+- Peg kort på hvad der er stærkt i svaret og hvad der mangler præcision eller dybde
+- Hold dig til det de faktisk har skrevet – ikke hvad du selv ville have skrevet
+- Vær konkret og direkte, ikke generisk eller overfladisk
+- Svar altid på dansk
+- Maks 200 ord
+- Skriv i sammenhængende afsnit, ikke bullet points`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 450,
+        system: sys,
+        messages: [{ role:'user', content:`Mine noter til ${p.label}-fasen:\n\n${notes}\n\nGiv feedback og stil spørgsmål, der kan hjælpe mig videre.` }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text || 'Noget gik galt. Prøv igen.';
+    fb.textContent = text;
+    fb.classList.add('show');
+    if (!state._feedback) state._feedback = {};
+    state._feedback[phaseId] = text;
+    saveState();
+  } catch(e) {
+    fb.textContent = 'Kunne ikke hente feedback. Tjek din internetforbindelse og prøv igen.';
+    fb.classList.add('show');
+  }
+
+  btn.disabled = false;
+  spin.style.display = 'none';
+}
+
+function showExport() { document.getElementById('exportModal').classList.add('show'); }
+function showImport() { document.getElementById('importModal').classList.add('show'); }
+function showReset() { document.getElementById('resetModal').classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+function exportJSON() {
+  const data = JSON.stringify(state, null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'designskabelon-noter-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  closeModal('exportModal');
+}
+
+function exportPrint() {
+  closeModal('exportModal');
+  const printWin = window.open('', '_blank');
+  let html = `<html><head><meta charset="UTF-8"><title>Designskabelon — Mine noter</title>
+  <style>
+    body { font-family: Georgia, serif; max-width: 700px; margin: 40px auto; color: #111; font-size: 14px; line-height: 1.7; }
+    h1 { font-size: 20px; font-weight: normal; margin-bottom: 4px; }
+    .sub { font-size: 12px; color: #666; font-family: Helvetica, sans-serif; margin-bottom: 30px; }
+    .phase { margin-bottom: 36px; page-break-inside: avoid; }
+    .phase-title { font-size: 17px; font-weight: normal; border-left: 3px solid #888; padding-left: 10px; margin-bottom: 12px; }
+    .q-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #666; font-family: Helvetica, sans-serif; margin-bottom: 4px; }
+    .q-text { font-size: 14px; margin-bottom: 14px; white-space: pre-wrap; }
+    .q-empty { color: #aaa; font-style: italic; font-size: 13px; margin-bottom: 14px; }
+    .feedback { background: #f5f5f5; padding: 12px 14px; margin-top: 12px; font-family: Helvetica, sans-serif; font-size: 13px; white-space: pre-wrap; }
+    .feedback-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #888; margin-bottom: 6px; }
+    hr { border: none; border-top: 1px solid #ddd; margin: 24px 0; }
+  </style></head><body>
+  <h1>Designskabelon — Online læringsaktiviteter</h1>
+  <p class="sub">Dalsgaard, Thestrup & Boie (2024) · Eksporteret ${new Date().toLocaleDateString('da-DK')}</p>`;
+
+  PHASES.forEach(p => {
+    const hasContent = p.questions.some(q => (state[p.id]?.[q.key] || '').trim().length > 0);
+    html += `<div class="phase"><div class="phase-title">Fase ${p.num}: ${p.label}</div>`;
+    p.questions.forEach(q => {
+      const val = (state[p.id]?.[q.key] || '').trim();
+      html += `<p class="q-label">${q.label}</p>`;
+      html += val ? `<p class="q-text">${val}</p>` : `<p class="q-empty">Ikke udfyldt</p>`;
+    });
+    const fb = state._feedback?.[p.id];
+    if (fb) {
+      html += `<div class="feedback"><div class="feedback-label">AI-feedback</div>${fb}</div>`;
+    }
+    html += `</div><hr>`;
+  });
+  html += '</body></html>';
+  printWin.document.write(html);
+  printWin.document.close();
+  setTimeout(() => printWin.print(), 500);
+}
+
+function doImport() {
+  const file = document.getElementById('importFile').files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      state = imported;
+      PHASES.forEach(p => {
+        if (!state[p.id]) state[p.id] = {};
+        p.questions.forEach(q => {
+          const ta = document.getElementById(p.id + '_' + q.key);
+          if (ta) ta.value = state[p.id][q.key] || '';
+        });
+        const fb = state._feedback?.[p.id];
+        const fbEl = document.getElementById('fb-' + p.id);
+        if (fbEl && fb) { fbEl.textContent = fb; fbEl.classList.add('show'); }
+      });
+      saveState();
+      updateProgress();
+      closeModal('importModal');
+    } catch(err) {
+      alert('Filen kunne ikke læses. Er du sikker på, at det er en gyldig gem-fil fra dette værktøj?');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function doReset() {
+  state = {};
+  PHASES.forEach(p => {
+    state[p.id] = {};
+    p.questions.forEach(q => {
+      state[p.id][q.key] = '';
+      const ta = document.getElementById(p.id + '_' + q.key);
+      if (ta) ta.value = '';
+    });
+    const fb = document.getElementById('fb-' + p.id);
+    if (fb) { fb.textContent = ''; fb.classList.remove('show'); }
+  });
+  state._feedback = {};
+  saveState();
+  updateProgress();
+  closeModal('resetModal');
+}
+
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('show'); });
+});
+
+initState();
+buildUI();
+</script>
+</body>
+</html>
